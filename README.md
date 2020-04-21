@@ -2,6 +2,10 @@
 
 ## Usage
 
+### Import Models
+
+Download the the `/gltf` folder from `vi-sense/sample-data` repository and add it to `/public` directory.
+
 ### Installation
 
 ```
@@ -14,6 +18,8 @@ $ npm run start
 ```
 $ npm run build 
 ```
+
+
 
 # Some notes and conventions for programming
 
