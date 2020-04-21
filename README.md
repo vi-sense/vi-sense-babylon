@@ -10,6 +10,10 @@ Download the the `/gltf` folder from `vi-sense/sample-data` repository and add i
 
 ```
 $ npm install 
+```
+
+### Development
+```
 $ npm run start
 ```
 
@@ -32,6 +36,6 @@ export class App {
 }
 ```
 
-`#someVariableName` is a private member
+`#someVariableName` is a private member variable. The # can also be used to declare a private function.
 
-all static (images, models, ...) files belong to the `/public` folder
+All static files (images, models, ...) belong to `/public`.
