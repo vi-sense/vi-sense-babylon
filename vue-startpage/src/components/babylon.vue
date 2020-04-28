@@ -5,7 +5,7 @@
 <script>
 import MyScene from "assets/MyBabylonScene.js";
 export default {
-  name: "babylon",
+  name: "Babylon",
   data() {
     return {
       scene

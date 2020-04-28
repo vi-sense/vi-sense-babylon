@@ -9,8 +9,8 @@
             v-for="model in models"
             active-class="is-active"
             class="link"
-            :to="{ name: 'model', params: { id: model.id } }">
-          {{model.id}}. {{model.title}}
+            :to="{ name: 'model', params: { id: model.ID } }">
+          {{model.ID}}. {{model.Name}}
         </router-link>
       </aside>
       <div class="content">
@@ -26,7 +26,7 @@
     data () {
       return {
         models: [],
-        endpoint: 'https://jsonplaceholder.typicode.com/posts/' // here put the endpoint of all the models from backend
+        endpoint: 'http://visense.f4.htw-berlin.de:8080/models' // here put the endpoint of all the models from backend
       }
     },
     created() {
