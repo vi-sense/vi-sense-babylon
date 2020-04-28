@@ -10,7 +10,9 @@
   "keywords": [],
   "devDependencies": {
     "babylonjs": "^4.1.0",
+    "babylonjs-inspector": "^4.1.0",
     "babylonjs-loaders": "^4.1.0",
+    "babylonjs-gui": "^4.1.0",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.5.2",
     "extract-text-webpack-plugin": "^3.0.2",

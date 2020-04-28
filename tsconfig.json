@@ -12,6 +12,7 @@
     "types": [
         "babylonjs",
         "babylonjs-loaders",
+        "babylonjs-gui"
     ],
     "exclude": [
         "node_modules",
