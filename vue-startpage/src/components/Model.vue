@@ -1,8 +1,9 @@
 <template lang="html">
   <div class="model" v-if="model">
-    <h1 class="model__title">{{ model.title }}</h1>
-    <p class="model__body">{{ model.body }}</p>
-    <p  class="model__id">{{ model.id }}</p>
+    <h1 class="model__title">{{ model.Name }}</h1>
+    <p class="model__body">{{ model.Description }}</p>
+    <p  class="model__id">{{ model.ID }}</p>
+    <a :href="model.Url" :download="model.Name">Download</a>
   </div>
 </template>
 
@@ -13,10 +14,11 @@
     data() {
       return {
         model: null,
-        endpoint: 'https://jsonplaceholder.typicode.com/posts/', // here put the endpoint of all the models from backend
+        endpoint: 'http://visense.f4.htw-berlin.de:8080/models/', // here put the endpoint of all the models from backend
       }
     },
     methods: {
+
       getModel(id) {
         axios(this.endpoint + id)
           .then(response => {
@@ -26,7 +28,8 @@
             console.log('-----error-------');
             console.log(error)
           })
-      }
+      },
+              
     },
     
     created() {
