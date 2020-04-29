@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import App from './App.vue'
 import Model from './components/Model.vue'
 import Hello from './components/Hello.vue'
+import Babylon from './components/Babylon.vue'
 Vue.use(Router)
 
 const router = new Router({
@@ -18,6 +19,11 @@ const router = new Router({
      component: Model,
      props: true,
    },
+   {
+    path: '/babylon',
+    name:'babylon',
+    component: Babylon,
+  }
  ]
 })
 

@@ -3,7 +3,8 @@
     <h1 class="model__title">{{ model.Name }}</h1>
     <p class="model__body">{{ model.Description }}</p>
     <p  class="model__id">{{ model.ID }}</p>
-    <a :href="model.Url" :download="model.Name">Download</a>
+    <img class="model__image" :src="'http://visense.f4.htw-berlin.de:8080/' + model.ImageUrl">
+    <router-link :to="{name: 'babylon', params: {id: model.Id}}">See 3D Model</router-link>
   </div>
 </template>
 
@@ -67,6 +68,16 @@
       right: -20px;
       line-height: 1;
       font-weight: 900;
+      z-index: 0;
+    }
+    &__image {
+      width: 50%;
+      height: 50%;
+      position: absolute;
+      bottom: -100px;
+      margin: 0;
+      right: 250px;
+      line-height: 1;
       z-index: 0;
     }
   }
