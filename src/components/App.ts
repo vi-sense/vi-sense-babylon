@@ -23,7 +23,7 @@ export class App {
         sphere.position.y = 1;
 
 
-        BABYLON.SceneLoader.ImportMesh("", "public/gltf/facility-mechanical-room/", "scene.gltf", this.scene, (meshes, particleSystems, skeletons) => {
+        BABYLON.SceneLoader.ImportMesh("", "gltf/facility-mechanical-room/", "scene.gltf", this.scene, (meshes, particleSystems, skeletons) => {
             let buildingModel = <BABYLON.Mesh> meshes[0] 
             // root mesh of the file, but how to access subnodes/meshes from root? 
             // give it a name (like the sphere) and access is like that?

@@ -1,31 +1,13 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-
 /* Export configuration */
 module.exports = {
     mode: 'development',
     entry: [
-        './src/index.ts'
+        './src/components/App.ts'
     ],
     output: {
         path: __dirname + '/dist',
-        filename: 'index.js'
-    },
-    plugins: [
-        new HtmlWebpackPlugin({
-            template: __dirname + '/src/index.html',
-            filename: 'index.html',
-            inject: 'body'
-        }),
-        new CopyWebpackPlugin([
-            { from: 'public', to: 'public' }, // yes this line is necessary
-          ])
-    ], 
-    devServer: {
-        contentBase: "./dist",
-        hot: true,
-        inline: true
-    },
+        filename: 'App.js',
+    }, 
     devtool: 'source-map',
     module: {
         rules: [
