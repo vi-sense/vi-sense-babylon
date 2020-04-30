@@ -4,11 +4,11 @@ import 'babylonjs-inspector';
 import setupCamera from './camera';
 import sensorSelectionScript from './sensorSelection';
 
-export class App {
+export default class App {
 
     engine: BABYLON.Engine
-    scene: BABYLON.Scene
-
+    scene: BABYLON.Scene   
+     
     constructor(canvas: HTMLCanvasElement){
 
         this.engine = new BABYLON.Engine(canvas, true);
@@ -26,12 +26,10 @@ export class App {
         BABYLON.SceneLoader.ImportMesh("", "gltf/facility-mechanical-room/", "scene.gltf", this.scene, (meshes, particleSystems, skeletons) => {
             let buildingModel = <BABYLON.Mesh> meshes[0] 
             // root mesh of the file, but how to access subnodes/meshes from root? 
-            // give it a name (like the sphere) and access is like that?
-
-            // Babylon developers prefer a right-handed coordinate handling when loading gltf models?! Loadet models have z=-z scale and rotationY = 180 per default
-            //this.buildingModel.scaling.z = 1; // causes in z-buffer issues in this model
-            //this.buildingModel.rotationQuaternion.y = 0;
-            buildingModel.rotationQuaternion = undefined
+            // give it a name (like the sphere) and access is like that? 
+            
+            //this.buildingModel.scaling.z = 1; // resets default scaling but causes in z-buffer issues in the facility room model
+            buildingModel.rotationQuaternion = undefined // resets rotation
 
             buildingModel.setPivotMatrix(BABYLON.Matrix.Translation(85, -179.5, -80), false); // dont do further transformations here
             buildingModel.rotate(BABYLON.Axis.Y, degToRad(-44), BABYLON.Space.LOCAL)
@@ -55,6 +53,4 @@ export class App {
 function degToRad(deg: number): number {
     return deg * Math.PI / 180
 }
-
-
 

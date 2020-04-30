@@ -1,14 +1,15 @@
 /* Export configuration */
 module.exports = {
-    mode: 'development',
+    mode: 'development', // set o production later
     entry: [
-        './src/components/App.ts'
+        './src/export.ts'
     ],
     output: {
         path: __dirname + '/dist',
         filename: 'App.js',
+        libraryTarget: "umd",
     }, 
-    devtool: 'source-map',
+    // devtool: 'source-map',
     module: {
         rules: [
             {
