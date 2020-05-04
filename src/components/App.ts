@@ -3,6 +3,7 @@ import 'babylonjs-loaders';
 import 'babylonjs-inspector';
 import setupCamera from './camera';
 import sensorSelectionScript from './sensorSelection';
+import { loadModel } from './loadModel';
 
 export default class App {
 
@@ -22,23 +23,9 @@ export default class App {
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere1', {segments:16, diameter:2}, this.scene);
         sphere.position.y = 1;
 
-
-        BABYLON.SceneLoader.ImportMesh("", "gltf/facility-mechanical-room/", "scene.gltf", this.scene, (meshes, particleSystems, skeletons) => {
-            let buildingModel = <BABYLON.Mesh> meshes[0] 
-            // root mesh of the file, but how to access subnodes/meshes from root? 
-            // give it a name (like the sphere) and access is like that? 
-            
-            //this.buildingModel.scaling.z = 1; // resets default scaling but causes in z-buffer issues in the facility room model
-            buildingModel.rotationQuaternion = undefined // resets rotation
-
-            buildingModel.setPivotMatrix(BABYLON.Matrix.Translation(85, -179.5, -80), false); // dont do further transformations here
-            buildingModel.rotate(BABYLON.Axis.Y, degToRad(-44), BABYLON.Space.LOCAL)
-            buildingModel.bakeCurrentTransformIntoVertices();
-            buildingModel.setPivotMatrix(BABYLON.Matrix.Identity()); // resets gizmos to origin  
-            
+        loadModel("", this.scene, (meshes) => {
             sensorSelectionScript(this.scene, meshes)
-        });
-
+        })
 
         this.engine.runRenderLoop(() => {
             this.scene.render();        
@@ -50,7 +37,4 @@ export default class App {
     }
 }
 
-function degToRad(deg: number): number {
-    return deg * Math.PI / 180
-}
 
