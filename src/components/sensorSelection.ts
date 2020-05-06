@@ -14,7 +14,9 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
   let model = await getModel(modelID);
   let sensors = model.Sensors;
 
-  let labels = [];
+  // save label containers for later reference
+  // sensorLabel is the container (rect) with its children [circle, label]
+  let sensorLabels = [];
 
   for (let i = 0; i < sensors.length; i++) {
     // CURRENT MESH, all selectable meshes are colored purple
@@ -23,35 +25,31 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     mat.albedoColor = BABYLON.Color3.Purple();
 
     // GET SENSORDATA
-    let response = await fetch("http://visense.f4.htw-berlin.de:8080/sensors/" + sensors[i].ID);
-    let sensorData = await response.json();
+    let sensorData = await fetch("http://visense.f4.htw-berlin.de:8080/sensors/" + sensors[i].ID)
+      .then(res => { return res.json() })
+      .catch(err => { throw new Error("Can not load sensor data") });
     let sensorLabelText = "Name: " + sensorData.Name + "\nDescription: " + sensorData.Description + "\nValue: " + sensorData.Data[sensorData.Data.length - 1].Value.toString() + sensorData.MeasurementUnit;
 
     // GUI SETUP
     let advancedTexture = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
     let rect = new GUI.Rectangle();
-    //rect.widthInPixels = 220;
-    //rect.heightInPixels = 100;
-    rect.background = "white";
-    rect.color = "black";
-    rect.alpha = 0.9;
     rect.thickness = 0;
     rect.adaptHeightToChildren = true;
     rect.adaptWidthToChildren = true;
     rect.isPointerBlocker = true;
+    rect.isVisible = true;
     advancedTexture.addControl(rect);
 
     let circle = new GUI.Ellipse();
     circle.width = "70px";
     circle.height = "70px";
-    circle.color = "white";
+    circle.alpha = 0.8;
     circle.background = "white";
-    circle.thickness = 10;
-    circle.isVisible = false;
+    circle.thickness = 2;
+    circle.isVisible = true;
     rect.addControl(circle);
 
     let label = new GUI.TextBlock();
-    label.text = sensors[i].Name;
     //label.textWrapping = true;
     label.resizeToFit = true;
     label.paddingRightInPixels = 20;
@@ -59,24 +57,26 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
     label.widthInPixels = rect.widthInPixels - 10;
     label.heightInPixels = rect.heightInPixels - 10;
     label.onTextChangedObservable.add(function(evt, picked) {
-      evt.parent.widthInPixels = evt.parent.widthInPixels + 50;
+      //evt.parent.widthInPixels = evt.parent.widthInPixels + 50;
     })
-    labels.push(label);
 
+    // select mesh on label click
     rect.onPointerDownObservable.add(function(e, p) {
-      // select mesh on label click
       if (mesh.state == "") {
         let mat = mesh.material as BABYLON.PBRMaterial;
         mat.albedoColor = BABYLON.Color3.Teal();
         mesh.state = "selected";
-        p.target.text = sensorLabelText;
+        p.currentTarget.background = "white";
+        sensorLabels[i].children[1].text = sensorLabelText;
       } else {
         let mat = mesh.material as BABYLON.PBRMaterial;
         mat.albedoColor = BABYLON.Color3.Purple();
         mesh.state = ""
-        p.target.text = sensorData.Name
+        p.currentTarget.background = "";
+        sensorLabels[i].children[1].text = ""
       }
     })
+    sensorLabels.push(rect);
     rect.addControl(label);
     rect.linkWithMesh(mesh);
 
@@ -89,10 +89,12 @@ export default async function sensorSelectionScript(scene: BABYLON.Scene, modelI
           if (e.source.state === "selected") {
             e.source.state = "";
             e.source.material.albedoColor = BABYLON.Color3.Purple();
-            labels[i].text = sensorData.Name
+            sensorLabels[i].background = "";
+            sensorLabels[i].children[1].text = "";
           } else {
-            // UPDATE LABEL TEXT
-            labels[i].text = sensorLabelText;
+            // SHOW RECTANGLE, UPDATE LABEL TEXT
+            sensorLabels[i].background = "white";
+            sensorLabels[i].children[1].text = sensorLabelText;
             e.source.state = "selected";
             e.source.material.albedoColor = BABYLON.Color3.Teal();
           }
