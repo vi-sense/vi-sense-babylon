@@ -8,13 +8,13 @@ import { loadModel } from './loadModel';
 export default class App {
 
     engine: BABYLON.Engine
-    scene: BABYLON.Scene   
-    
+    scene: BABYLON.Scene
+
     constructor(canvas: HTMLCanvasElement, modelID: number, production: boolean){
 
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = new BABYLON.Scene(this.engine);
-        //this.scene.debugLayer.show();        
+        //this.scene.debugLayer.show();
 
         setupCamera(canvas, this.engine, this.scene)
 
@@ -25,17 +25,15 @@ export default class App {
 
 
         loadModel(modelID, this.scene, (meshes) => {
-            sensorSelectionScript(this.scene, meshes)
+            sensorSelectionScript(this.scene, modelID, meshes)
         }, production)
 
         this.engine.runRenderLoop(() => {
-            this.scene.render();        
+            this.scene.render();
         })
 
-        window.addEventListener('resize', () => { 
+        window.addEventListener('resize', () => {
             this.engine.resize();
         });
     }
 }
-
-
