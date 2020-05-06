@@ -10,7 +10,7 @@ export default class App {
     engine: BABYLON.Engine
     scene: BABYLON.Scene   
     
-    constructor(canvas: HTMLCanvasElement, modelID: string, production: boolean){
+    constructor(canvas: HTMLCanvasElement, modelID: number, production: boolean){
 
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = new BABYLON.Scene(this.engine);

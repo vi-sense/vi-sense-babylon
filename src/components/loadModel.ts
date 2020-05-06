@@ -1,24 +1,35 @@
 import * as BABYLON from 'babylonjs'
-
 import { degToRad } from './utils';
 var JSZip = require("jszip");
 
 
-export function loadModel(id: string, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, production: boolean) {
+export function loadModel(id: number, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, production: boolean) {
 
     if(production){
-        var url = 'http://visense.f4.htw-berlin.de:8080/files/'+id+'/model.zip/'
-        getFileFromServer(url, zipFile => {
-            loadZIP(zipFile, glTFDataString => {
-                BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons)  => {
-                    let buildingModel = <BABYLON.Mesh> meshes[0]
-                    normalize(buildingModel)
-                    callback(meshes)
+        fetch("http://visense.f4.htw-berlin.de:8080/models/"+ id).then(response => {
+            response.json().then(bodyData => {
+                var url = 'http://visense.f4.htw-berlin.de:8080/'+bodyData.Url                
+                getFileFromServer(url, zipFile => {
+                    loadZIP(zipFile, glTFDataString => {
+                        BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons)  => {
+                            let buildingModel = <BABYLON.Mesh> meshes[0]
+                            normalize(buildingModel)
+                            callback(meshes)
+                        })
+                    })
                 })
             })
         })
     } else {
-        var url = 'gltf/'+id+'/'
+
+        var url: string
+        switch(id){
+            case 1: url = 'gltf/facility-mechanical-room/'; break
+            case 2: url = 'gltf/mep-building-model/'; break
+            case 3: url = 'gltf/overhead-mep-installation/'; break
+            default: throw new Error("model not available")
+        }
+        
         BABYLON.SceneLoader.ImportMesh("", url, "scene.gltf", scene, (meshes, particleSystems, skeletons) => {
             let buildingModel = <BABYLON.Mesh> meshes[0]
             normalize(buildingModel)
