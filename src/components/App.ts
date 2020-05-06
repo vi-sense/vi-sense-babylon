@@ -9,8 +9,8 @@ export default class App {
 
     engine: BABYLON.Engine
     scene: BABYLON.Scene   
-     
-    constructor(canvas: HTMLCanvasElement){
+    
+    constructor(canvas: HTMLCanvasElement, modelID: string, production: boolean){
 
         this.engine = new BABYLON.Engine(canvas, true);
         this.scene = new BABYLON.Scene(this.engine);
@@ -23,9 +23,10 @@ export default class App {
         var sphere = BABYLON.MeshBuilder.CreateSphere('sphere1', {segments:16, diameter:2}, this.scene);
         sphere.position.y = 1;
 
-        loadModel("", this.scene, (meshes) => {
+
+        loadModel(modelID, this.scene, (meshes) => {
             sensorSelectionScript(this.scene, meshes)
-        })
+        }, production)
 
         this.engine.runRenderLoop(() => {
             this.scene.render();        

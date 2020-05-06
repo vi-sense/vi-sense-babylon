@@ -1,40 +1,50 @@
 import * as BABYLON from 'babylonjs'
+
 import { degToRad } from './utils';
 var JSZip = require("jszip");
 
-export function loadModel(url: string, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void){
 
-    getBaseData( glTFString => {
-        BABYLON.SceneLoader.ImportMeshAsync('', '', `data:${glTFString}`, scene)
-    })
-    
-    return;
-    BABYLON.SceneLoader.ImportMesh("", "gltf/facility-mechanical-room/", "scene.gltf", scene, (meshes, particleSystems, skeletons) => {
+export function loadModel(id: string, scene: BABYLON.Scene, callback: (meshes: BABYLON.AbstractMesh[]) => void, production: boolean) {
 
-        let buildingModel = <BABYLON.Mesh> meshes[0] 
-        // root mesh of the file, but how to access subnodes/meshes from root? 
-        // give it a name (like the sphere) and access is like that? 
-        
-        //this.buildingModel.scaling.z = 1; // resets default scaling but causes in z-buffer issues in the facility room model
-        buildingModel.rotationQuaternion = undefined // resets rotation
+    if(production){
+        var url = 'http://visense.f4.htw-berlin.de:8080/files/'+id+'/model.zip/'
+        getFileFromServer(url, zipFile => {
+            loadZIP(zipFile, glTFDataString => {
+                BABYLON.SceneLoader.ImportMesh('', '', `data:${glTFDataString}`, scene, (meshes, particleSystems, skeletons)  => {
+                    let buildingModel = <BABYLON.Mesh> meshes[0]
+                    normalize(buildingModel)
+                    callback(meshes)
+                })
+            })
+        })
+    } else {
+        var url = 'gltf/'+id+'/'
+        BABYLON.SceneLoader.ImportMesh("", url, "scene.gltf", scene, (meshes, particleSystems, skeletons) => {
+            let buildingModel = <BABYLON.Mesh> meshes[0]
+            normalize(buildingModel)
+            callback(meshes)
+        })
+    }
+}
 
-        buildingModel.setPivotMatrix(BABYLON.Matrix.Translation(85, -179.5, -80), false); // dont do further transformations here
-        buildingModel.rotate(BABYLON.Axis.Y, degToRad(-44), BABYLON.Space.LOCAL)
-        buildingModel.bakeCurrentTransformIntoVertices();
-        buildingModel.setPivotMatrix(BABYLON.Matrix.Identity()); // resets gizmos to origin  
-        
-        callback(meshes)
-    })
+
+
+/**
+ * for facility-mechanical-room
+ */
+function normalize(rootMesh){
+    rootMesh.rotationQuaternion = undefined // reset default rotation and use euler angles instead
+    rootMesh.setPivotMatrix(BABYLON.Matrix.Translation(85, -179.5, -80), false); // dont do further transformations here
+    rootMesh.rotate(BABYLON.Axis.Y, degToRad(-44), BABYLON.Space.LOCAL)
+    rootMesh.bakeCurrentTransformIntoVertices();
+    rootMesh.setPivotMatrix(BABYLON.Matrix.Identity()); // resets gizmos to origin  
 }
 
 
 
 
-function getBaseData (callback) {
-    var Zip = new JSZip()
-    var url = 'http://visense.f4.htw-berlin.de:8080/files/mep-building-model/model.zip/' // Introducing static files
+function getFileFromServer (url: String, callback: (file: String) => void) {
     var xmlhttp = null
-
     if (window.XMLHttpRequest) { // code for IE7+, Firefox, Chrome, Opera, Safari
         xmlhttp = new window.XMLHttpRequest()
     } else { // code for IE6, IE5
@@ -52,31 +62,57 @@ function getBaseData (callback) {
         xmlhttp.overrideMimeType('text/plain; charset=x-user-defined')
     }
 
+    console.log("requesting model file from "+url);
     xmlhttp.send()
     xmlhttp.onreadystatechange = function () {
         if (xmlhttp.readyState === 4 && xmlhttp.status === 200) {
-        var file = xmlhttp.response || xmlhttp.responseText
-
-        JSZip
-        .loadAsync(file)
-        .then(function (zip) {
-
-            let binPromise = zip.file("scene.bin")
-            .async("blob")
-            .then(function(blob){
-                console.log(blob);
-                
-                let blolbDataURL = window.URL.createObjectURL(blob);
-
-                let glTFPromis = zip.file("scene.gltf")
-                .async("string")
-                .then(function(sceneString){
-
-                    sceneString = sceneString.split("scene.bin").join(blolbDataURL)
-                    callback(sceneString)
-                })
-            })
-        })
+            var file = xmlhttp.response || xmlhttp.responseText
+            callback(file)
         }
     }
+ }
+
+ // https://github.com/Stuk/jszip/issues/375
+ function loadZIP(zipFile: String, callback: (glTF: String) => void){
+
+    JSZip
+    .loadAsync(zipFile)
+    .then(function (zipContent) {
+        
+        // filter out directorys
+        var files = <any> Object.values(zipContent.files)
+        files = files.filter((file) => {
+            return !file.dir
+        })
+        
+        // create promises of blolbs and rebind them to its filename
+        var listOfPromises = (files).map(function(entry) {
+            return entry.async("blob").then(function(blob) {
+                return [entry.name, blob];
+            });
+        });
+           
+        // wait until all promises are resolved
+        Promise.all(listOfPromises).then(function(list) {
+            // transform list of [name, data] into an object for easy access
+            var result = list.reduce(function(accumulator, current) {
+            var currentName = current[0]
+            var currentValue = current[1]
+            accumulator[currentName] = currentValue;
+            return accumulator;
+            }, {});
+                    
+            zipContent.file("scene.gltf") 
+            .async("string")
+            .then(function(glTFString){
+
+                for (var fileName of Object.keys(result)) {
+                    // replace relativ paths by dataURLs
+                    let blolbDataURL = window.URL.createObjectURL(result[fileName]);
+                    glTFString = glTFString.split(fileName).join(blolbDataURL)
+                }    
+                callback(glTFString)
+            })
+        });
+    })
  }
